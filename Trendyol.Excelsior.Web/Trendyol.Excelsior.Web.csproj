@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{56B81DB0-F354-4C76-B7AF-D87792206D1E}</ProjectGuid>
+    <ProjectGuid>{90A6F723-19D7-4610-839A-C3EBB18C8870}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Trendyol.Excelsior</RootNamespace>
-    <AssemblyName>Trendyol.Excelsior</AssemblyName>
+    <RootNamespace>Trendyol.Excelsior.Web</RootNamespace>
+    <AssemblyName>Trendyol.Excelsior.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -55,23 +55,26 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExcelColumnAttribute.cs" />
-    <Compile Include="Excelsior.cs" />
-    <Compile Include="ExcelsiorException.cs" />
-    <Compile Include="IExcelsior.cs" />
+    <Compile Include="ExcelsiorExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Trendyol.Excelsior\Trendyol.Excelsior.csproj">
+      <Project>{56b81db0-f354-4c76-b7af-d87792206d1e}</Project>
+      <Name>Trendyol.Excelsior</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Trendyol.Excelsior.nuspec" />
+    <None Include="Trendyol.Excelsior.Web.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

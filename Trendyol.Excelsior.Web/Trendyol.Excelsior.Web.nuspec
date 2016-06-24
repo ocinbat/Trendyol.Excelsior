@@ -1,0 +1,19 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/Trendyol/Trendyol.Excelsior</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <summary>$description$</summary>
+    <copyright>Copyright 2016</copyright>
+    <tags>tredyol excel npoi</tags>
+    <dependencies>
+      <dependency id="Trendyol.Excelsior" version="[0.0.1" />
+    </dependencies>
+  </metadata>
+</package>
