@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -89,88 +90,7 @@ namespace Trendyol.Excelsior
             {
                 IRow row = sheet.GetRow(i);
 
-                bool isRowEmpty = IsRowEmpty(row);
-
-                if (isRowEmpty)
-                {
-                    continue;
-                }
-
-                T item = Activator.CreateInstance<T>();
-
-                PropertyInfo prop = typeof(T).GetProperty("RowNo");
-
-                if (prop != null)
-                {
-                    prop.SetValue(item, i);
-                }
-
-                foreach (PropertyInfo pi in mappingTypeProperties)
-                {
-                    ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
-
-                    if (attr != null)
-                    {
-                        int columnOrder = attr.Order - 1;
-
-                        string columnValue = row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL) == null ? string.Empty : row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL).ToString();
-
-                        if (!string.IsNullOrEmpty(columnValue))
-                        {
-                            columnValue = columnValue.Trim();
-
-                            if (pi.PropertyType == typeof(int))
-                            {
-                                int val;
-
-                                if (int.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(decimal))
-                            {
-                                decimal val;
-
-                                if (decimal.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, Math.Round(val, 2));
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(float))
-                            {
-                                float val;
-
-                                if (float.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, Math.Round(val, 2));
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(long))
-                            {
-                                long val;
-
-                                if (long.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(DateTime))
-                            {
-                                DateTime val;
-
-                                if (DateTime.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(string))
-                            {
-                                pi.SetValue(item, columnValue);
-                            }
-                        }
-                    }
-                }
+                T item = GetItemFromRow<T>(row, mappingTypeProperties);
 
                 itemList.Add(item);
             }
@@ -258,88 +178,7 @@ namespace Trendyol.Excelsior
             {
                 IRow row = sheet.GetRow(i);
 
-                bool isRowEmpty = IsRowEmpty(row);
-
-                if (isRowEmpty)
-                {
-                    continue;
-                }
-
-                T item = Activator.CreateInstance<T>();
-
-                PropertyInfo prop = typeof(T).GetProperty("RowNo");
-
-                if (prop != null)
-                {
-                    prop.SetValue(item, i);
-                }
-
-                foreach (PropertyInfo pi in mappingTypeProperties)
-                {
-                    ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
-
-                    if (attr != null)
-                    {
-                        int columnOrder = attr.Order - 1;
-
-                        string columnValue = row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL) == null ? string.Empty : row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL).ToString();
-
-                        if (!string.IsNullOrEmpty(columnValue))
-                        {
-                            columnValue = columnValue.Trim();
-
-                            if (pi.PropertyType == typeof(int))
-                            {
-                                int val;
-
-                                if (int.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(decimal))
-                            {
-                                decimal val;
-
-                                if (decimal.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, Math.Round(val, 2));
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(float))
-                            {
-                                float val;
-
-                                if (float.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, Math.Round(val, 2));
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(long))
-                            {
-                                long val;
-
-                                if (long.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(DateTime))
-                            {
-                                DateTime val;
-
-                                if (DateTime.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else if (pi.PropertyType == typeof(string))
-                            {
-                                pi.SetValue(item, columnValue);
-                            }
-                        }
-                    }
-                }
+                T item = GetItemFromRow<T>(row, mappingTypeProperties);
 
                 if (rowValidator.IsValid(item))
                 {
@@ -376,9 +215,9 @@ namespace Trendyol.Excelsior
             {
                 for (int i = 0; i < headerRow.Cells.Count; i++)
                 {
-                    string celValue = headerRow.Cells[i].StringCellValue;
+                    string cellValue = headerRow.Cells[i].StringCellValue;
 
-                    PropertyInfo pi = properties.FirstOrDefault(p => p.GetCustomAttribute<ExcelColumnAttribute>() != null && p.GetCustomAttribute<ExcelColumnAttribute>().Name == celValue);
+                    PropertyInfo pi = properties.FirstOrDefault(p => p.GetCustomAttribute<ExcelColumnAttribute>() != null && p.GetCustomAttribute<ExcelColumnAttribute>().Name == cellValue);
 
                     if (pi == null)
                     {
@@ -413,6 +252,101 @@ namespace Trendyol.Excelsior
             }
 
             return true;
+        }
+
+        private T GetItemFromRow<T>(IRow row, List<PropertyInfo> mappingTypeProperties)
+        {
+            bool isRowEmpty = IsRowEmpty(row);
+
+            if (isRowEmpty)
+            {
+                return default(T);
+            }
+
+            T item = Activator.CreateInstance<T>();
+
+            foreach (PropertyInfo pi in mappingTypeProperties)
+            {
+                ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+
+                if (attr != null)
+                {
+                    int columnOrder = attr.Order - 1;
+
+                    string columnValue = row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL) == null ? string.Empty : row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL).ToString();
+
+                    if (!string.IsNullOrEmpty(columnValue))
+                    {
+                        columnValue = columnValue.Trim();
+
+                        if (pi.PropertyType == typeof(int))
+                        {
+                            int val;
+
+                            if (int.TryParse(columnValue, out val))
+                            {
+                                pi.SetValue(item, val);
+                            }
+                        }
+                        else if (pi.PropertyType == typeof(decimal))
+                        {
+                            decimal val;
+
+                            if (decimal.TryParse(columnValue, out val))
+                            {
+                                pi.SetValue(item, Math.Round(val, 2));
+                            }
+                        }
+                        else if (pi.PropertyType == typeof(float))
+                        {
+                            float val;
+
+                            if (float.TryParse(columnValue, out val))
+                            {
+                                pi.SetValue(item, Math.Round(val, 2));
+                            }
+                        }
+                        else if (pi.PropertyType == typeof(long))
+                        {
+                            long val;
+
+                            if (long.TryParse(columnValue, out val))
+                            {
+                                pi.SetValue(item, val);
+                            }
+                        }
+                        else if (pi.PropertyType == typeof(DateTime))
+                        {
+                            DateTime val;
+
+                            if (String.IsNullOrEmpty(attr.Format))
+                            {
+                                if (DateTime.TryParse(columnValue, out val))
+                                {
+                                    pi.SetValue(item, val);
+                                }
+                            }
+                            else
+                            {
+                                if (DateTime.TryParseExact(columnValue, attr.Format, CultureInfo.InvariantCulture, DateTimeStyles.None, out val))
+                                {
+                                    pi.SetValue(item, val);
+                                }
+                            }
+                        }
+                        else if (pi.PropertyType == typeof(string))
+                        {
+                            pi.SetValue(item, columnValue);
+                        }
+                    }
+                    else
+                    {
+                        pi.SetValue(item, attr.DefaultValue);
+                    }
+                }
+            }
+
+            return item;
         }
     }
 }
