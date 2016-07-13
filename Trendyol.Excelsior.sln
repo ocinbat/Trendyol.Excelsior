@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trendyol.Excelsior.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trendyol.Excelsior.Web", "Trendyol.Excelsior.Web\Trendyol.Excelsior.Web.csproj", "{90A6F723-19D7-4610-839A-C3EBB18C8870}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{7E986D3F-A3A2-437D-A691-3BB7A96963D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "Samples\WebApplication\WebApplication.csproj", "{B97C0EC7-3B5B-4B1A-95E3-C508E19914A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +31,15 @@ Global
 		{90A6F723-19D7-4610-839A-C3EBB18C8870}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90A6F723-19D7-4610-839A-C3EBB18C8870}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90A6F723-19D7-4610-839A-C3EBB18C8870}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B97C0EC7-3B5B-4B1A-95E3-C508E19914A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B97C0EC7-3B5B-4B1A-95E3-C508E19914A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B97C0EC7-3B5B-4B1A-95E3-C508E19914A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B97C0EC7-3B5B-4B1A-95E3-C508E19914A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B97C0EC7-3B5B-4B1A-95E3-C508E19914A9} = {7E986D3F-A3A2-437D-A691-3BB7A96963D3}
 	EndGlobalSection
 EndGlobal

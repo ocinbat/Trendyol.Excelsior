@@ -431,6 +431,8 @@ namespace Trendyol.Excelsior
                 return null;
             }
 
+            row.Cells.ForEach(c => c.SetCellType(CellType.String));
+
             string[] itemRow = row.Cells.Select(c => c.StringCellValue).ToArray();
 
             return itemRow;
