@@ -202,6 +202,79 @@ namespace Trendyol.Excelsior
             return itemList;
         }
 
+        public IEnumerable<string[]> Listify(string filePath, bool hasHeaderRow = false)
+        {
+            if (String.IsNullOrEmpty(filePath))
+            {
+                throw new ArgumentNullException("filePath");
+            }
+
+            string fileExtension = Path.GetExtension(filePath);
+
+            FileStream stream = new FileStream(filePath, FileMode.Open);
+
+            try
+            {
+                IWorkbook workbook;
+
+                switch (fileExtension.ToLower())
+                {
+                    case ".xls":
+                        workbook = new HSSFWorkbook(stream);
+                        break;
+                    case ".xlsx":
+                        workbook = new XSSFWorkbook(stream);
+                        break;
+                    default:
+                        throw new InvalidOperationException("Excelsior can only operate on .xsl and .xlsx files.");
+                }
+
+                return Listify(workbook, hasHeaderRow);
+            }
+            finally
+            {
+                stream.Dispose();
+            }
+        }
+
+        public IEnumerable<string[]> Listify(IWorkbook workbook, bool hasHeaderRow = false)
+        {
+            if (workbook == null)
+            {
+                throw new ArgumentNullException("workbook");
+            }
+
+            ISheet sheet = workbook.GetSheetAt(0);
+
+            if (sheet == null)
+            {
+                return Enumerable.Empty<string[]>();
+            }
+
+            int firstDataRow = 0;
+
+            if (hasHeaderRow)
+            {
+                firstDataRow = 1;
+            }
+
+            ICollection<string[]> itemList = new List<string[]>();
+
+            for (int i = firstDataRow; i < sheet.PhysicalNumberOfRows; i++)
+            {
+                IRow row = sheet.GetRow(i);
+
+                string[] itemRow = GetItemFromRow(row);
+
+                if (itemRow != null)
+                {
+                    itemList.Add(itemRow);
+                }
+            }
+
+            return itemList;
+        }
+
         private List<PropertyInfo> GetMappingTypeProperties(Type type)
         {
             return type.GetProperties().Where(p => p.GetCustomAttribute<ExcelColumnAttribute>() != null).ToList();
@@ -347,6 +420,20 @@ namespace Trendyol.Excelsior
             }
 
             return item;
+        }
+
+        private string[] GetItemFromRow(IRow row)
+        {
+            bool isRowEmpty = IsRowEmpty(row);
+
+            if (isRowEmpty)
+            {
+                return null;
+            }
+
+            string[] itemRow = row.Cells.Select(c => c.StringCellValue).ToArray();
+
+            return itemRow;
         }
     }
 }

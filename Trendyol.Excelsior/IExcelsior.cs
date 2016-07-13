@@ -12,5 +12,9 @@ namespace Trendyol.Excelsior
         IEnumerable<T> Listify<T>(string filePath, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false);
 
         IEnumerable<T> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false);
+
+        IEnumerable<string[]> Listify(string filePath, bool hasHeaderRow = false);
+
+        IEnumerable<string[]> Listify(IWorkbook workbook, bool hasHeaderRow = false);
     }
 }
