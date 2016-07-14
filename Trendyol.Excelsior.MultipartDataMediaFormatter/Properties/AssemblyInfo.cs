@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Trendyol.Excelsior.MultipartDataMediaFormatter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A wrapper library to manipulate MS Excel files easily.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("trendyol")]
 [assembly: AssemblyProduct("Trendyol.Excelsior.MultipartDataMediaFormatter")]
