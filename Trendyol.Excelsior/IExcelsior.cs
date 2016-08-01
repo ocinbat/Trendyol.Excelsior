@@ -16,5 +16,7 @@ namespace Trendyol.Excelsior
         IEnumerable<string[]> Listify(string filePath, bool hasHeaderRow = false);
 
         IEnumerable<string[]> Listify(IWorkbook workbook, bool hasHeaderRow = false);
+
+        byte[] Excelify<T>(IEnumerable<T> rows, bool printHeaderRow = false);
     }
 }
