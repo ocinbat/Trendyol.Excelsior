@@ -266,6 +266,56 @@ namespace Trendyol.Excelsior
             return itemList;
         }
 
+        public byte[] Excelify<T>(IEnumerable<T> rows, bool printHeaderRow = false)
+        {
+            if (!printHeaderRow && (rows == null || !rows.Any()))
+            {
+                throw new ArgumentException("There must be at least one row to generate excel file.", "rows");
+            }
+
+            IWorkbook workbook = new XSSFWorkbook();
+            ISheet sheet = workbook.CreateSheet("Sheet1");
+            int rowIndex = 0;
+
+            List<PropertyInfo> mappingTypeProperties = GetMappingTypeProperties(typeof(T));
+            mappingTypeProperties = mappingTypeProperties.OrderBy(p => p.GetCustomAttribute<ExcelColumnAttribute>().Order).ToList();
+
+            if (printHeaderRow)
+            {
+                IRow headerRow = sheet.CreateRow(rowIndex++);
+
+                List<string> headerColumns = mappingTypeProperties
+                    .Select(p => p.GetCustomAttribute<ExcelColumnAttribute>().Name)
+                    .ToList();
+
+                for (int i = 0; i < headerColumns.Count; i++)
+                {
+                    headerRow.CreateCell(i).SetCellValue(headerColumns[i]);
+                }
+            }
+
+            List<T> items = rows.ToList();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                IRow dataRow = sheet.CreateRow(rowIndex);
+
+                List<string> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
+
+                for (int j = 0; j < rowCells.Count; j++)
+                {
+                    dataRow.CreateCell(j).SetCellValue(rowCells[j] == null ? String.Empty : String.Format("\t{0}", rowCells[j]));
+                }
+            }
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                workbook.Write(stream);
+
+                return stream.ToArray();
+            }
+        }
+
         private List<PropertyInfo> GetMappingTypeProperties(Type type)
         {
             return type.GetProperties().Where(p => p.GetCustomAttribute<ExcelColumnAttribute>() != null).ToList();
@@ -273,7 +323,7 @@ namespace Trendyol.Excelsior
 
         private bool CheckExcelColumnOrder<T>(IRow headerRow)
         {
-            List<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.GetCustomAttribute<ExcelColumnAttribute>() != null).ToList();
+            List<PropertyInfo> properties = GetMappingTypeProperties(typeof(T));
 
             if (headerRow != null)
             {
@@ -281,7 +331,7 @@ namespace Trendyol.Excelsior
                 {
                     string cellValue = headerRow.Cells[i].StringCellValue;
 
-                    PropertyInfo pi = properties.FirstOrDefault(p => p.GetCustomAttribute<ExcelColumnAttribute>() != null && p.GetCustomAttribute<ExcelColumnAttribute>().Name == cellValue);
+                    PropertyInfo pi = properties.FirstOrDefault(p => p.GetCustomAttribute<ExcelColumnAttribute>().Name == cellValue);
 
                     if (pi == null)
                     {
@@ -427,6 +477,43 @@ namespace Trendyol.Excelsior
             string[] itemRow = row.Cells.Select(c => c.StringCellValue).ToArray();
 
             return itemRow;
+        }
+
+        private List<string> GetCellArrayForItem<T>(T item, List<PropertyInfo> mappingTypeProperties)
+        {
+            List<string> cells = new List<string>();
+
+            foreach (PropertyInfo pi in mappingTypeProperties)
+            {
+                string cell = String.Empty;
+
+                object itemValue = pi.GetValue(item);
+
+                if (itemValue != null)
+                {
+                    ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+
+                    if (pi.PropertyType == typeof(DateTime))
+                    {
+                        if (String.IsNullOrEmpty(attr.Format))
+                        {
+                            cell = ((DateTime)itemValue).ToString(CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            cell = ((DateTime)itemValue).ToString(attr.Format, CultureInfo.InvariantCulture);
+                        }
+                    }
+                    else
+                    {
+                        cell = itemValue.ToString();
+                    }
+                }
+
+                cells.Add(cell);
+            }
+
+            return cells;
         }
     }
 }
