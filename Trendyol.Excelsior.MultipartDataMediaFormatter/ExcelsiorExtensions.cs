@@ -5,6 +5,7 @@ using MultipartDataMediaFormatter.Infrastructure;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior.MultipartDataMediaFormatter
 {
@@ -34,7 +35,7 @@ namespace Trendyol.Excelsior.MultipartDataMediaFormatter
             return excelsior.Listify<T>(workbook, hasHeaderRow);
         }
 
-        public static IEnumerable<T> Listify<T>(this IExcelsior excelsior, HttpFile httpFile, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false)
+        public static IEnumerable<IValidatedRow<T>> Listify<T>(this IExcelsior excelsior, HttpFile httpFile, IRowValidator<T> rowValidator, bool hasHeaderRow = false)
         {
             string fileExtension = Path.GetExtension(httpFile.FileName) ?? String.Empty;
 
@@ -55,7 +56,7 @@ namespace Trendyol.Excelsior.MultipartDataMediaFormatter
                 }
             }
 
-            return excelsior.Listify<T>(workbook, rowValidator, out invalids, hasHeaderRow);
+            return excelsior.Listify<T>(workbook, rowValidator, hasHeaderRow);
         }
 
         public static IEnumerable<string[]> Listify(this IExcelsior excelsior, HttpFile httpFile, bool hasHeaderRow = false)
