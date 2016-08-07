@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -187,15 +188,16 @@ namespace Trendyol.Excelsior
                 {
                     T item = GetItemFromRow<T>(row, mappingTypeProperties);
 
-                IRowValidationResult validationResult = rowValidator.Validate(item);
+                    IRowValidationResult validationResult = rowValidator.Validate(item);
 
-                IValidatedRow<T> validatedRow = new ValidatedRow<T>();
-                validatedRow.RowNumber = firstDataRow;
-                validatedRow.Item = item;
-                validatedRow.IsValid = validationResult.IsValid;
-                validatedRow.Errors = validationResult.Errors;
+                    IValidatedRow<T> validatedRow = new ValidatedRow<T>();
+                    validatedRow.RowNumber = firstDataRow;
+                    validatedRow.Item = item;
+                    validatedRow.IsValid = validationResult.IsValid;
+                    validatedRow.Errors = validationResult.Errors;
 
-                itemList.Add(validatedRow);
+                    itemList.Add(validatedRow);
+                }
             }
 
             return itemList;
