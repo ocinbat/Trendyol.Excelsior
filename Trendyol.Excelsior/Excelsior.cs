@@ -90,9 +90,15 @@ namespace Trendyol.Excelsior
             {
                 IRow row = sheet.GetRow(i);
 
-                T item = GetItemFromRow<T>(row, mappingTypeProperties);
+                if (!IsRowEmpty(row))
+                {
+                    T item = GetItemFromRow<T>(row, mappingTypeProperties);
 
-                itemList.Add(item);
+                    if (!item.Equals(default(T)))
+                    {
+                        itemList.Add(item);
+                    }
+                }
             }
 
             return itemList;
@@ -178,15 +184,18 @@ namespace Trendyol.Excelsior
             {
                 IRow row = sheet.GetRow(i);
 
-                T item = GetItemFromRow<T>(row, mappingTypeProperties);
+                if (!IsRowEmpty(row))
+                {
+                    T item = GetItemFromRow<T>(row, mappingTypeProperties);
 
-                if (rowValidator.IsValid(item))
-                {
-                    itemList.Add(item);
-                }
-                else
-                {
-                    invalidItems.Add(item);
+                    if (rowValidator.IsValid(item))
+                    {
+                        itemList.Add(item);
+                    }
+                    else
+                    {
+                        invalidItems.Add(item);
+                    }
                 }
             }
 
@@ -264,11 +273,14 @@ namespace Trendyol.Excelsior
             {
                 IRow row = sheet.GetRow(i);
 
-                string[] itemRow = GetItemFromRow(row);
-
-                if (itemRow != null)
+                if (!IsRowEmpty(row))
                 {
-                    itemList.Add(itemRow);
+                    string[] itemRow = GetItemFromRow(row);
+
+                    if (itemRow != null)
+                    {
+                        itemList.Add(itemRow);
+                    }
                 }
             }
 
@@ -379,13 +391,6 @@ namespace Trendyol.Excelsior
 
         private T GetItemFromRow<T>(IRow row, List<PropertyInfo> mappingTypeProperties)
         {
-            bool isRowEmpty = IsRowEmpty(row);
-
-            if (isRowEmpty)
-            {
-                return default(T);
-            }
-
             T item = Activator.CreateInstance<T>();
 
             foreach (PropertyInfo pi in mappingTypeProperties)
