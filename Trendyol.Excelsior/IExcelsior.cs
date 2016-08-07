@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NPOI.SS.UserModel;
+using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior
 {
@@ -9,9 +10,9 @@ namespace Trendyol.Excelsior
 
         IEnumerable<T> Listify<T>(IWorkbook workbook, bool hasHeaderRow = false);
 
-        IEnumerable<T> Listify<T>(string filePath, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false);
+        IEnumerable<IValidatedRow<T>> Listify<T>(string filePath, IRowValidator<T> rowValidator, bool hasHeaderRow = false);
 
-        IEnumerable<T> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false);
+        IEnumerable<IValidatedRow<T>> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, bool hasHeaderRow = false);
 
         IEnumerable<string[]> Listify(string filePath, bool hasHeaderRow = false);
 

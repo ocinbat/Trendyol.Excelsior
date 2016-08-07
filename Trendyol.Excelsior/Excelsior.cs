@@ -7,6 +7,7 @@ using System.Reflection;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior
 {
@@ -104,7 +105,7 @@ namespace Trendyol.Excelsior
             return itemList;
         }
 
-        public IEnumerable<T> Listify<T>(string filePath, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false)
+        public IEnumerable<IValidatedRow<T>> Listify<T>(string filePath, IRowValidator<T> rowValidator,  bool hasHeaderRow = false)
         {
             if (String.IsNullOrEmpty(filePath))
             {
@@ -131,7 +132,7 @@ namespace Trendyol.Excelsior
                         throw new InvalidOperationException("Excelsior can only operate on .xsl and .xlsx files.");
                 }
 
-                return Listify<T>(workbook, rowValidator, out invalids, hasHeaderRow);
+                return Listify(workbook, rowValidator, hasHeaderRow);
             }
             finally
             {
@@ -139,7 +140,7 @@ namespace Trendyol.Excelsior
             }
         }
 
-        public IEnumerable<T> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, out IEnumerable<T> invalids, bool hasHeaderRow = false)
+        public IEnumerable<IValidatedRow<T>> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, bool hasHeaderRow = false)
         {
             if (workbook == null)
             {
@@ -150,8 +151,7 @@ namespace Trendyol.Excelsior
 
             if (sheet == null)
             {
-                invalids = Enumerable.Empty<T>();
-                return Enumerable.Empty<T>();
+                return Enumerable.Empty<ValidatedRow<T>>();
             }
 
             int excelColumnCount = sheet.GetRow(0).PhysicalNumberOfCells;
@@ -177,8 +177,7 @@ namespace Trendyol.Excelsior
                 firstDataRow = 1;
             }
 
-            ICollection<T> itemList = new List<T>();
-            ICollection<T> invalidItems = new List<T>();
+            ICollection<IValidatedRow<T>> itemList = new List<IValidatedRow<T>>();
 
             for (int i = firstDataRow; i < sheet.PhysicalNumberOfRows; i++)
             {
@@ -188,24 +187,15 @@ namespace Trendyol.Excelsior
                 {
                     T item = GetItemFromRow<T>(row, mappingTypeProperties);
 
-                    if (rowValidator.IsValid(item))
-                    {
-                        itemList.Add(item);
-                    }
-                    else
-                    {
-                        invalidItems.Add(item);
-                    }
-                }
-            }
+                IRowValidationResult validationResult = rowValidator.Validate(item);
 
-            if (invalidItems.Any())
-            {
-                invalids = invalidItems;
-            }
-            else
-            {
-                invalids = Enumerable.Empty<T>();
+                IValidatedRow<T> validatedRow = new ValidatedRow<T>();
+                validatedRow.RowNumber = firstDataRow;
+                validatedRow.Item = item;
+                validatedRow.IsValid = validationResult.IsValid;
+                validatedRow.Errors = validationResult.Errors;
+
+                itemList.Add(validatedRow);
             }
 
             return itemList;

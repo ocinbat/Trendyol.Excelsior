@@ -66,9 +66,15 @@
     <Compile Include="ExcelColumnAttribute.cs" />
     <Compile Include="Excelsior.cs" />
     <Compile Include="ExcelsiorException.cs" />
+    <Compile Include="IExcelRow.cs" />
     <Compile Include="IExcelsior.cs" />
     <Compile Include="IRowValidator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validation\IRowValidationResult.cs" />
+    <Compile Include="Validation\IValidatedRow.cs" />
+    <Compile Include="Validation\IValidationError.cs" />
+    <Compile Include="Validation\ValidatedRow.cs" />
+    <Compile Include="Validation\ValidationError.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

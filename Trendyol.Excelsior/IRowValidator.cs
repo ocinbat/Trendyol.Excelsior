@@ -1,7 +1,9 @@
-﻿namespace Trendyol.Excelsior
+﻿using Trendyol.Excelsior.Validation;
+
+namespace Trendyol.Excelsior
 {
     public interface IRowValidator<T>
     {
-        bool IsValid(T row);
+        IRowValidationResult Validate<T>(T row);
     }
 }
