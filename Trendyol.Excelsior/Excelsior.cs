@@ -354,7 +354,7 @@ namespace Trendyol.Excelsior
             style.SetFont(font);
             style.FillBackgroundColor = HSSFColor.Grey80Percent.Index;
 
-            headerRow.RowStyle = style;
+            headerRow.Cells.ForEach(c => c.CellStyle = style);
         }
 
         private IFont CreateHeaderFont(IWorkbook workbook)
