@@ -352,7 +352,8 @@ namespace Trendyol.Excelsior
             IFont font = CreateHeaderFont(workbook);
             ICellStyle style = workbook.CreateCellStyle();
             style.SetFont(font);
-            style.FillBackgroundColor = HSSFColor.Grey80Percent.Index;
+            style.FillForegroundColor = 0;
+            style.FillPattern = FillPattern.SolidForeground;
 
             headerRow.Cells.ForEach(c => c.CellStyle = style);
         }
