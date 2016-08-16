@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using Trendyol.Excelsior.Validation;
@@ -305,6 +306,8 @@ namespace Trendyol.Excelsior
                 {
                     headerRow.CreateCell(i).SetCellValue(headerColumns[i]);
                 }
+
+                SetHeaderRowStyles(workbook, headerRow);
             }
 
             List<T> items = rows.ToList();
@@ -342,6 +345,26 @@ namespace Trendyol.Excelsior
 
                 return stream.ToArray();
             }
+        }
+
+        private void SetHeaderRowStyles(IWorkbook workbook, IRow headerRow)
+        {
+            IFont font = CreateHeaderFont(workbook);
+            ICellStyle style = workbook.CreateCellStyle();
+            style.SetFont(font);
+            style.FillBackgroundColor = HSSFColor.Grey80Percent.Index;
+
+            headerRow.RowStyle = style;
+        }
+
+        private IFont CreateHeaderFont(IWorkbook workbook)
+        {
+            IFont font = workbook.CreateFont();
+            font.FontHeightInPoints = 13;
+            font.FontName = "Calibri";
+            font.Color = HSSFColor.White.Index;
+            font.Boldweight = (short)FontBoldWeight.Bold;
+            return font;
         }
 
         private List<PropertyInfo> GetMappingTypeProperties(Type type)
