@@ -106,7 +106,7 @@ namespace Trendyol.Excelsior
             return itemList;
         }
 
-        public IEnumerable<IValidatedRow<T>> Listify<T>(string filePath, IRowValidator<T> rowValidator,  bool hasHeaderRow = false)
+        public IEnumerable<IValidatedRow<T>> Listify<T>(string filePath, IRowValidator<T> rowValidator, bool hasHeaderRow = false)
         {
             if (String.IsNullOrEmpty(filePath))
             {
@@ -309,15 +309,30 @@ namespace Trendyol.Excelsior
 
             List<T> items = rows.ToList();
 
+            int? cellCount = null;
+
             for (int i = 0; i < items.Count; i++)
             {
                 IRow dataRow = sheet.CreateRow(rowIndex);
 
                 List<string> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
 
+                if (!cellCount.HasValue)
+                {
+                    cellCount = rowCells.Count;
+                }
+
                 for (int j = 0; j < rowCells.Count; j++)
                 {
                     dataRow.CreateCell(j).SetCellValue(rowCells[j] == null ? String.Empty : String.Format("\t{0}", rowCells[j]));
+                }
+            }
+
+            if (cellCount.HasValue)
+            {
+                for (int i = 0; i < cellCount.Value; i++)
+                {
+                    sheet.AutoSizeColumn(i);
                 }
             }
 
