@@ -316,7 +316,7 @@ namespace Trendyol.Excelsior
 
             for (int i = 0; i < items.Count; i++)
             {
-                IRow dataRow = sheet.CreateRow(rowIndex);
+                IRow dataRow = sheet.CreateRow(rowIndex++);
 
                 List<string> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
 
