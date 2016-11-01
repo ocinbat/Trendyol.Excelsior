@@ -50,6 +50,17 @@ namespace Trendyol.Excelsior
             }
         }
 
+        public IEnumerable<T> Listify<T>(byte[] data, bool hasHeaderRow = false)
+        {
+            if (data == null || data.Length == 0)
+            {
+                throw new ArgumentNullException("data");
+            }
+
+            IWorkbook workbook = GetWorkbook(data);
+            return Listify<T>(workbook, hasHeaderRow);
+        }
+
         public IEnumerable<T> Listify<T>(IWorkbook workbook, bool hasHeaderRow = false)
         {
             if (workbook == null)
@@ -140,6 +151,17 @@ namespace Trendyol.Excelsior
             {
                 stream.Dispose();
             }
+        }
+
+        public IEnumerable<IValidatedRow<T>> Listify<T>(byte[] data, IRowValidator<T> rowValidator, bool hasHeaderRow = false)
+        {
+            if (data == null || data.Length == 0)
+            {
+                throw new ArgumentNullException("data");
+            }
+
+            IWorkbook workbook = GetWorkbook(data);
+            return Listify<T>(workbook, rowValidator, hasHeaderRow);
         }
 
         public IEnumerable<IValidatedRow<T>> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, bool hasHeaderRow = false)
@@ -237,6 +259,17 @@ namespace Trendyol.Excelsior
             {
                 stream.Dispose();
             }
+        }
+
+        public IEnumerable<string[]> Listify(byte[] data, bool hasHeaderRow = false)
+        {
+            if (data == null || data.Length == 0)
+            {
+                throw new ArgumentNullException("data");
+            }
+
+            IWorkbook workbook = GetWorkbook(data);
+            return Listify<string[]>(workbook, hasHeaderRow);
         }
 
         public IEnumerable<string[]> Listify(IWorkbook workbook, bool hasHeaderRow = false)
@@ -559,6 +592,62 @@ namespace Trendyol.Excelsior
             }
 
             return cells;
+        }
+
+        private IWorkbook GetWorkbook(byte[] data)
+        {
+            IWorkbook workbook;
+
+            if (TryCreateHSSFWorkbook(data, out workbook) || TryCreateXSSFWorkbook(data, out workbook))
+            {
+                return workbook;
+            }
+
+            throw new InvalidOperationException("Excelsior can only operate on .xsl and .xlsx files.");
+        }
+
+        private bool TryCreateHSSFWorkbook(byte[] data, out IWorkbook workbook)
+        {
+            MemoryStream stream = new MemoryStream(data);
+
+            try
+            {
+                workbook = new HSSFWorkbook(stream);
+                return true;
+            }
+            catch (Exception)
+            {
+                workbook = null;
+            }
+            finally
+            {
+                stream.Close();
+                stream.Dispose();
+            }
+
+            return false;
+        }
+
+        private bool TryCreateXSSFWorkbook(byte[] data, out IWorkbook workbook)
+        {
+            MemoryStream stream = new MemoryStream(data);
+
+            try
+            {
+                workbook = new XSSFWorkbook(stream);
+                return true;
+            }
+            catch (Exception)
+            {
+                workbook = null;
+            }
+            finally
+            {
+                stream.Close();
+                stream.Dispose();
+            }
+
+            return false;
         }
     }
 }
