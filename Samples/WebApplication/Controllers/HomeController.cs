@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using Trendyol.Excelsior;
 using Trendyol.Excelsior.Web;
 
@@ -40,7 +35,7 @@ namespace WebApplication.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     IExcelsior excelsior = new Excelsior();
-                    var array = excelsior.Listify(file, true);
+                    var array = excelsior.Arrayify(file, true);
                 }
             }
 

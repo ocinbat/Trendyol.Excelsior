@@ -18,11 +18,11 @@ namespace Trendyol.Excelsior
 
         IEnumerable<IValidatedRow<T>> Listify<T>(IWorkbook workbook, IRowValidator<T> rowValidator, bool hasHeaderRow = false);
 
-        IEnumerable<string[]> Listify(string filePath, bool hasHeaderRow = false);
+        IEnumerable<string[]> Arrayify(string filePath, bool hasHeaderRow = false);
 
-        IEnumerable<string[]> Listify(byte[] data, bool hasHeaderRow = false);
+        IEnumerable<string[]> Arrayify(byte[] data, bool hasHeaderRow = false);
 
-        IEnumerable<string[]> Listify(IWorkbook workbook, bool hasHeaderRow = false);
+        IEnumerable<string[]> Arrayify(IWorkbook workbook, bool hasHeaderRow = false);
 
         byte[] Excelify<T>(IEnumerable<T> rows, bool printHeaderRow = false);
     }

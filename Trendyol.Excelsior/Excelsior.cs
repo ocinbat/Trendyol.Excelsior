@@ -226,7 +226,7 @@ namespace Trendyol.Excelsior
             return itemList;
         }
 
-        public IEnumerable<string[]> Listify(string filePath, bool hasHeaderRow = false)
+        public IEnumerable<string[]> Arrayify(string filePath, bool hasHeaderRow = false)
         {
             if (String.IsNullOrEmpty(filePath))
             {
@@ -253,7 +253,7 @@ namespace Trendyol.Excelsior
                         throw new InvalidOperationException("Excelsior can only operate on .xsl and .xlsx files.");
                 }
 
-                return Listify(workbook, hasHeaderRow);
+                return Arrayify(workbook, hasHeaderRow);
             }
             finally
             {
@@ -261,7 +261,7 @@ namespace Trendyol.Excelsior
             }
         }
 
-        public IEnumerable<string[]> Listify(byte[] data, bool hasHeaderRow = false)
+        public IEnumerable<string[]> Arrayify(byte[] data, bool hasHeaderRow = false)
         {
             if (data == null || data.Length == 0)
             {
@@ -272,7 +272,7 @@ namespace Trendyol.Excelsior
             return Listify<string[]>(workbook, hasHeaderRow);
         }
 
-        public IEnumerable<string[]> Listify(IWorkbook workbook, bool hasHeaderRow = false)
+        public IEnumerable<string[]> Arrayify(IWorkbook workbook, bool hasHeaderRow = false)
         {
             if (workbook == null)
             {
