@@ -269,7 +269,7 @@ namespace Trendyol.Excelsior
             }
 
             IWorkbook workbook = GetWorkbook(data);
-            return Listify<string[]>(workbook, hasHeaderRow);
+            return Arrayify(workbook, hasHeaderRow);
         }
 
         public IEnumerable<string[]> Arrayify(IWorkbook workbook, bool hasHeaderRow = false)
