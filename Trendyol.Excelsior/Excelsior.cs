@@ -360,8 +360,10 @@ namespace Trendyol.Excelsior
 
                 for (int j = 0; j < rowCells.Count; j++)
                 {
-                    dataRow.CreateCell(j).SetCellValue(rowCells[j] == null ? String.Empty : String.Format("\t{0}", rowCells[j]));
+                    dataRow.CreateCell(j).SetCellValue(rowCells[j] == null ? String.Empty : String.Format("{0}", rowCells[j]));
                 }
+
+                dataRow.Cells.ForEach(c => c.SetCellType(CellType.String));
             }
 
             if (cellCount.HasValue)
