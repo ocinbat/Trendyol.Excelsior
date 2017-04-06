@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using Trendyol.Excelsior;
 using Trendyol.Excelsior.Web;
+using WebApplication.Models;
 
 namespace WebApplication.Controllers
 {
@@ -40,11 +39,39 @@ namespace WebApplication.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     IExcelsior excelsior = new Excelsior();
-                    var array = excelsior.Listify(file, true);
+                    IEnumerable<Person> persons = excelsior.Listify<Person>(file, true);
                 }
             }
 
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public FileResult Download()
+        {
+            IExcelsior excelsior = new Excelsior();
+
+            List<Person> persons = GetPersons();
+
+            byte[] bytes = excelsior.Excelify(persons, true);
+            return File(bytes, "application/vnd.ms-excel", "persons.xlsx");
+        }
+
+        private List<Person> GetPersons()
+        {
+            List<Person> persons = new List<Person>();
+
+            Person person = new Person()
+            {
+                Id = 1,
+                EmploymentStartDate = DateTime.Now.AddDays(-55),
+                Name = "Ömer Cinbat",
+                RowNumber = 1,
+                Salary = 400.22M
+            };
+            persons.Add(person);
+
+            return persons;
         }
     }
 }

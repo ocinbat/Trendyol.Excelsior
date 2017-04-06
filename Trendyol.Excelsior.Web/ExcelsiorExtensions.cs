@@ -53,7 +53,7 @@ namespace Trendyol.Excelsior.Web
             return excelsior.Listify(workbook, rowValidator, hasHeaderRow);
         }
 
-        public static IEnumerable<string[]> Listify(this IExcelsior excelsior, HttpPostedFileBase httpPostedFileBase, bool hasHeaderRow = false)
+        public static IEnumerable<string[]> Arrayify(this IExcelsior excelsior, HttpPostedFileBase httpPostedFileBase, bool hasHeaderRow = false)
         {
             string fileExtension = Path.GetExtension(httpPostedFileBase.FileName) ?? String.Empty;
 
@@ -71,7 +71,7 @@ namespace Trendyol.Excelsior.Web
                     throw new InvalidOperationException("Excelsior can only operate on .xsl and .xlsx files.");
             }
 
-            return excelsior.Listify(workbook, hasHeaderRow);
+            return excelsior.Arrayify(workbook, hasHeaderRow);
         }
     }
 }
