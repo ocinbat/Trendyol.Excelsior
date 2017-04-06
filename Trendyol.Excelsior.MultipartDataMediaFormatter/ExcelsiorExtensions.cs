@@ -59,7 +59,7 @@ namespace Trendyol.Excelsior.MultipartDataMediaFormatter
             return excelsior.Listify<T>(workbook, rowValidator, hasHeaderRow);
         }
 
-        public static IEnumerable<string[]> Listify(this IExcelsior excelsior, HttpFile httpFile, bool hasHeaderRow = false)
+        public static IEnumerable<string[]> Arrayify(this IExcelsior excelsior, HttpFile httpFile, bool hasHeaderRow = false)
         {
             string fileExtension = Path.GetExtension(httpFile.FileName) ?? String.Empty;
 
@@ -80,7 +80,7 @@ namespace Trendyol.Excelsior.MultipartDataMediaFormatter
                 }
             }
 
-            return excelsior.Listify(workbook, hasHeaderRow);
+            return excelsior.Arrayify(workbook, hasHeaderRow);
         }
     }
 }
