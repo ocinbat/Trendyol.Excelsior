@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trendyol.Excelsior", "Trendyol.Excelsior\Trendyol.Excelsior.csproj", "{56B81DB0-F354-4C76-B7AF-D87792206D1E}"
 EndProject
@@ -16,6 +16,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trendyol.Excelsior.MultipartDataMediaFormatter", "Trendyol.Excelsior.MultipartDataMediaFormatter\Trendyol.Excelsior.MultipartDataMediaFormatter.csproj", "{EE95E462-3858-453D-BB49-865494A72855}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiApplication", "Samples\WebApiApplication\WebApiApplication.csproj", "{838D05F2-D762-47C8-9109-9339E62FB2BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{87C4BA33-32D4-4A49-9E96-958551923810}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
