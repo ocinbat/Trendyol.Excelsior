@@ -351,7 +351,7 @@ namespace Trendyol.Excelsior
             {
                 IRow dataRow = sheet.CreateRow(rowIndex++);
 
-                List<string> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
+                List<ExcelCell> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
 
                 if (!cellCount.HasValue)
                 {
@@ -360,10 +360,10 @@ namespace Trendyol.Excelsior
 
                 for (int j = 0; j < rowCells.Count; j++)
                 {
-                    dataRow.CreateCell(j).SetCellValue(rowCells[j] == null ? String.Empty : String.Format("{0}", rowCells[j]));
+                    ICell cell = dataRow.CreateCell(j);
+                    cell.SetCellValue(rowCells[j].Value == null ? String.Empty : String.Format("{0}", rowCells[j].Value));
+                    cell.SetCellType(rowCells[j].Type);
                 }
-
-                dataRow.Cells.ForEach(c => c.SetCellType(CellType.String));
             }
 
             if (cellCount.HasValue)
@@ -559,34 +559,41 @@ namespace Trendyol.Excelsior
             return itemRow;
         }
 
-        private List<string> GetCellArrayForItem<T>(T item, List<PropertyInfo> mappingTypeProperties)
+        private List<ExcelCell> GetCellArrayForItem<T>(T item, List<PropertyInfo> mappingTypeProperties)
         {
-            List<string> cells = new List<string>();
+            List<ExcelCell> cells = new List<ExcelCell>();
 
             foreach (PropertyInfo pi in mappingTypeProperties)
             {
-                string cell = String.Empty;
+                ExcelCell cell = new ExcelCell();
+
+                ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+
+                if (attr.CellType == CellType.Unknown)
+                {
+                    attr.CellType = CellType.String;
+                }
+
+                cell.Type = attr.CellType;
 
                 object itemValue = pi.GetValue(item);
 
                 if (itemValue != null)
                 {
-                    ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
-
                     if (pi.PropertyType == typeof(DateTime))
                     {
                         if (String.IsNullOrEmpty(attr.Format))
                         {
-                            cell = ((DateTime)itemValue).ToString(CultureInfo.InvariantCulture);
+                            cell.Value = ((DateTime)itemValue).ToString(CultureInfo.InvariantCulture);
                         }
                         else
                         {
-                            cell = ((DateTime)itemValue).ToString(attr.Format, CultureInfo.InvariantCulture);
+                            cell.Value = ((DateTime)itemValue).ToString(attr.Format, CultureInfo.InvariantCulture);
                         }
                     }
                     else
                     {
-                        cell = itemValue.ToString();
+                        cell.Value = itemValue.ToString();
                     }
                 }
 
