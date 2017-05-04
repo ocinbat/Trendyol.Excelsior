@@ -14,10 +14,16 @@ namespace WebApplication.Models
         [ExcelColumn(2, "İsim")]
         public string Name { get; set; }
 
-        [ExcelColumn(3, "Maaş", CellType = CellType.Numeric)]
-        public decimal Salary { get; set; }
+        [ExcelColumn(3, "Decimal", null, "0.00", CellType = CellType.Numeric)]
+        public decimal Decimal { get; set; }
 
-        [ExcelColumn(4, "İşe Giriş Tarihi", null, "dd/MM/yyyy HH:mm")]
+        [ExcelColumn(4, "Float", null, "0.00", CellType = CellType.Numeric)]
+        public float Float { get; set; }
+
+        [ExcelColumn(5, "Double", null, "0.00", CellType = CellType.Numeric)]
+        public double Double { get; set; }
+
+        [ExcelColumn(6, "İşe Giriş Tarihi", null, "dd/MM/yyyy HH:mm:ss")]
         public DateTime EmploymentStartDate { get; set; }
     }
 }

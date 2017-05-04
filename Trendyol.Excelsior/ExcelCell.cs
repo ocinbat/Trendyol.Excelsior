@@ -4,7 +4,9 @@ namespace Trendyol.Excelsior
 {
     internal class ExcelCell
     {
-        public string Value { get; set; }
+        public object Value { get; set; }
+
+        public string Format { get; set; }
 
         public CellType Type { get; set; }
     }

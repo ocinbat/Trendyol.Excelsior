@@ -360,9 +360,26 @@ namespace Trendyol.Excelsior
 
                 for (int j = 0; j < rowCells.Count; j++)
                 {
-                    ICell cell = dataRow.CreateCell(j);
-                    cell.SetCellValue(rowCells[j].Value == null ? String.Empty : String.Format("{0}", rowCells[j].Value));
-                    cell.SetCellType(rowCells[j].Type);
+                    ICell cell = dataRow.CreateCell(j, rowCells[j].Type);
+
+                    switch (rowCells[j].Type)
+                    {
+                        case CellType.Numeric:
+                            cell.SetCellValue(Convert.ToDouble(rowCells[j].Value));
+
+                            if (!String.IsNullOrEmpty(rowCells[j].Format))
+                            {
+                                ICellStyle style = workbook.CreateCellStyle();
+                                style.DataFormat = HSSFDataFormat.GetBuiltinFormat(rowCells[j].Format);
+                                cell.CellStyle = style;
+                            }
+                            break;
+                        case CellType.String:
+                            cell.SetCellValue(rowCells[j].Value == null ? String.Empty : $"{rowCells[j].Value}");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("CellType", $"Unsupported cell type: {rowCells[j].Type}.");
+                    }
                 }
             }
 
@@ -574,6 +591,7 @@ namespace Trendyol.Excelsior
                     attr.CellType = CellType.String;
                 }
 
+                cell.Format = attr.Format;
                 cell.Type = attr.CellType;
 
                 object itemValue = pi.GetValue(item);
@@ -593,7 +611,7 @@ namespace Trendyol.Excelsior
                     }
                     else
                     {
-                        cell.Value = itemValue.ToString();
+                        cell.Value = itemValue;
                     }
                 }
 
