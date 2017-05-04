@@ -59,6 +59,9 @@ public interface IExcelsior
 }
 ```
 
+For built-in cell formats:
+[NPOI](https://github.com/tonyqus/npoi/blob/02f080d3ee37e4f04a999be32604b1cb6bf3e649/main/SS/UserModel/BuiltinFormats.cs)
+
 ## Built With
 
 * [NPOI](https://github.com/tonyqus/npoi) - a .NET library that can read/write Office formats without Microsoft Office installed. No COM+, no interop.
