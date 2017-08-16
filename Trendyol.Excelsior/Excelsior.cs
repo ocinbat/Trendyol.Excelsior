@@ -474,86 +474,19 @@ namespace Trendyol.Excelsior
 
         private T GetItemFromRow<T>(IRow row, List<PropertyInfo> mappingTypeProperties)
         {
-            T item = Activator.CreateInstance<T>();
+            var item = Activator.CreateInstance<T>();
 
             foreach (PropertyInfo pi in mappingTypeProperties)
             {
-                ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+                var attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
 
                 if (attr != null)
                 {
                     int columnOrder = attr.Order - 1;
 
                     string columnValue = row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL) == null ? string.Empty : row.GetCell(columnOrder, MissingCellPolicy.RETURN_BLANK_AS_NULL).ToString();
-
-                    if (!string.IsNullOrEmpty(columnValue))
-                    {
-                        columnValue = columnValue.Trim();
-
-                        if (pi.PropertyType == typeof(int))
-                        {
-                            int val;
-
-                            if (int.TryParse(columnValue, out val))
-                            {
-                                pi.SetValue(item, val);
-                            }
-                        }
-                        else if (pi.PropertyType == typeof(decimal))
-                        {
-                            decimal val;
-
-                            if (decimal.TryParse(columnValue, out val))
-                            {
-                                pi.SetValue(item, Math.Round(val, 2));
-                            }
-                        }
-                        else if (pi.PropertyType == typeof(float))
-                        {
-                            float val;
-
-                            if (float.TryParse(columnValue, out val))
-                            {
-                                pi.SetValue(item, Math.Round(val, 2));
-                            }
-                        }
-                        else if (pi.PropertyType == typeof(long))
-                        {
-                            long val;
-
-                            if (long.TryParse(columnValue, out val))
-                            {
-                                pi.SetValue(item, val);
-                            }
-                        }
-                        else if (pi.PropertyType == typeof(DateTime))
-                        {
-                            DateTime val;
-
-                            if (String.IsNullOrEmpty(attr.Format))
-                            {
-                                if (DateTime.TryParse(columnValue, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                            else
-                            {
-                                if (DateTime.TryParseExact(columnValue, attr.Format, CultureInfo.InvariantCulture, DateTimeStyles.None, out val))
-                                {
-                                    pi.SetValue(item, val);
-                                }
-                            }
-                        }
-                        else if (pi.PropertyType == typeof(string))
-                        {
-                            pi.SetValue(item, columnValue);
-                        }
-                    }
-                    else
-                    {
-                        pi.SetValue(item, attr.DefaultValue);
-                    }
+                    object val = !string.IsNullOrEmpty(columnValue) ? ChangeTypeOfObject(pi, columnValue) : attr.DefaultValue;
+                    pi.SetValue(item, val);
                 }
             }
 
@@ -675,6 +608,19 @@ namespace Trendyol.Excelsior
             }
 
             return false;
+        }
+
+        private object ChangeTypeOfObject(PropertyInfo propertyInfo, object value)
+        {
+            try
+            {
+                Type propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+                return Convert.ChangeType(value, propertyType);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }
