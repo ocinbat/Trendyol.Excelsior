@@ -8,6 +8,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+
+using Trendyol.Excelsior.Extensions;
 using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior
@@ -471,7 +473,7 @@ namespace Trendyol.Excelsior
                     {
                         columnValue = columnValue.Trim();
 
-                        if (GetActualPropertyType(pi.PropertyType) == typeof(int))
+                        if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(int))
                         {
                             int val;
 
@@ -480,7 +482,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, val);
                             }
                         }
-                        else if (GetActualPropertyType(pi.PropertyType) == typeof(decimal))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(decimal))
                         {
                             decimal val;
 
@@ -489,7 +491,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, Math.Round(val, 2));
                             }
                         }
-                        else if (GetActualPropertyType(pi.PropertyType) == typeof(float))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(float))
                         {
                             float val;
 
@@ -498,7 +500,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, Math.Round(val, 2));
                             }
                         }
-                        else if (GetActualPropertyType(pi.PropertyType) == typeof(long))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(long))
                         {
                             long val;
 
@@ -507,7 +509,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, val);
                             }
                         }
-                        else if (GetActualPropertyType(pi.PropertyType) == typeof(DateTime))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(DateTime))
                         {
                             DateTime val;
 
@@ -526,7 +528,7 @@ namespace Trendyol.Excelsior
                                 }
                             }
                         }
-                        else if (GetActualPropertyType(pi.PropertyType) == typeof(string))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(string))
                         {
                             pi.SetValue(item, columnValue);
                         }
@@ -657,14 +659,5 @@ namespace Trendyol.Excelsior
 
             return false;
         }
-
-        private Type GetActualPropertyType(Type propertyType)
-        {
-            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                return Nullable.GetUnderlyingType(propertyType);
-            }
-
-            return propertyType;
-        }}
+    }
 }
