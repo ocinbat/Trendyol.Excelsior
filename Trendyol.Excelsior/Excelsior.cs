@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NPOI.HSSF.UserModel;
-using NPOI.HSSF.Util;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
 using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior
@@ -24,9 +23,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -43,10 +40,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Listify<T>(workbook, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -127,9 +120,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -146,10 +137,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Listify(workbook, rowValidator, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -235,9 +222,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -254,10 +239,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Arrayify(workbook, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -617,7 +598,7 @@ namespace Trendyol.Excelsior
                 Type propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
                 return Convert.ChangeType(value, propertyType);
             }
-            catch (Exception)
+            catch
             {
                 return null;
             }

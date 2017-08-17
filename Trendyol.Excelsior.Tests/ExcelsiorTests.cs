@@ -42,6 +42,9 @@ namespace Trendyol.Excelsior.Tests
 
             [ExcelColumn(2, "Quantity")]
             public int? Quantity { get; set; }
+
+            [ExcelColumn(3, "UpdatedDate")]
+            public DateTime? UpdatedDate { get; set; }
         }
     }
 }
