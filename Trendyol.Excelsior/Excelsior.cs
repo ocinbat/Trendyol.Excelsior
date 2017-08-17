@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NPOI.HSSF.UserModel;
-using NPOI.HSSF.Util;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+
+using Trendyol.Excelsior.Extensions;
 using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior
@@ -24,9 +25,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -43,10 +42,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Listify<T>(workbook, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -127,9 +122,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -146,10 +139,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Listify(workbook, rowValidator, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -235,9 +224,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -254,10 +241,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Arrayify(workbook, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -474,11 +457,11 @@ namespace Trendyol.Excelsior
 
         private T GetItemFromRow<T>(IRow row, List<PropertyInfo> mappingTypeProperties)
         {
-            T item = Activator.CreateInstance<T>();
+            var item = Activator.CreateInstance<T>();
 
             foreach (PropertyInfo pi in mappingTypeProperties)
             {
-                ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+                var attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
 
                 if (attr != null)
                 {
@@ -490,7 +473,7 @@ namespace Trendyol.Excelsior
                     {
                         columnValue = columnValue.Trim();
 
-                        if (pi.PropertyType == typeof(int))
+                        if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(int))
                         {
                             int val;
 
@@ -499,7 +482,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, val);
                             }
                         }
-                        else if (pi.PropertyType == typeof(decimal))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(decimal))
                         {
                             decimal val;
 
@@ -508,7 +491,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, Math.Round(val, 2));
                             }
                         }
-                        else if (pi.PropertyType == typeof(float))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(float))
                         {
                             float val;
 
@@ -517,7 +500,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, Math.Round(val, 2));
                             }
                         }
-                        else if (pi.PropertyType == typeof(long))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(long))
                         {
                             long val;
 
@@ -526,7 +509,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, val);
                             }
                         }
-                        else if (pi.PropertyType == typeof(DateTime))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(DateTime))
                         {
                             DateTime val;
 
@@ -545,7 +528,7 @@ namespace Trendyol.Excelsior
                                 }
                             }
                         }
-                        else if (pi.PropertyType == typeof(string))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(string))
                         {
                             pi.SetValue(item, columnValue);
                         }
