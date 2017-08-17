@@ -12,7 +12,7 @@ namespace Trendyol.Excelsior.Tests
     public class ExcelsiorTests
     {
         [TestMethod]
-        public void test_for_nullable_property_parse()
+        public void should_parse_nullable_properties_of_dto()
         {
             //-----------------------------------------------------------------------------------------------------------
             // Arrange
