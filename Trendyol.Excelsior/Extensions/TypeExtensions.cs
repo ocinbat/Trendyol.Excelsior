@@ -2,7 +2,7 @@
 
 namespace Trendyol.Excelsior.Extensions
 {
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         public static Type GetUnderlyingTypeIfPossible(this Type value)
         {
