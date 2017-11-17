@@ -554,7 +554,15 @@ namespace Trendyol.Excelsior
 
             row.Cells.ForEach(c => c.SetCellType(CellType.String));
 
-            string[] itemRow = row.Cells.Select(c => c.StringCellValue).ToArray();
+            string[] itemRow = { };
+
+            foreach (ICell cell in row.Cells)
+            {
+                if (cell != null)
+                {
+                    itemRow[cell.ColumnIndex] = cell.StringCellValue;
+                }
+            }
 
             return itemRow;
         }
