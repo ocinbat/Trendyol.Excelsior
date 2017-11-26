@@ -39,7 +39,7 @@ namespace WebApplication.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     IExcelsior excelsior = new Excelsior();
-                    IEnumerable<Person> persons = excelsior.Listify<Person>(file, true);
+                    var asdf = excelsior.Arrayify(file, true);
                 }
             }
 

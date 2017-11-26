@@ -277,20 +277,14 @@ namespace Trendyol.Excelsior
             }
 
             ICollection<string[]> itemList = new List<string[]>();
+            int maxColumnNumber = GetMaxColumnNumberOfSheet(sheet);
+            int maxRowNumber = GetMaxRowNumberOfSheet(sheet);
 
-            for (int i = firstDataRow; i < sheet.PhysicalNumberOfRows; i++)
+            for (int i = firstDataRow; i < maxRowNumber + 1; i++)
             {
                 IRow row = sheet.GetRow(i);
-
-                if (!IsRowEmpty(row))
-                {
-                    string[] itemRow = GetItemFromRow(row);
-
-                    if (itemRow != null)
-                    {
-                        itemList.Add(itemRow);
-                    }
-                }
+                string[] itemRow = GetItemFromRow(row, maxColumnNumber);
+                itemList.Add(itemRow);
             }
 
             return itemList;
@@ -442,17 +436,39 @@ namespace Trendyol.Excelsior
                 return true;
             }
 
-            for (int i = 0; i <= row.PhysicalNumberOfCells; i++)
+            using (var enumerator = row.GetEnumerator())
             {
-                ICell cell = row.GetCell(i);
-
-                if (cell != null && cell.CellType != CellType.Blank)
+                while (enumerator.MoveNext())
                 {
-                    return false;
+                    ICell cell = enumerator.Current;
+
+                    if (cell != null && cell.CellType != CellType.Blank)
+                    {
+                        return false;
+                    }
                 }
             }
 
             return true;
+        }
+
+        private int GetMaxRowNumberOfSheet(ISheet sheet)
+        {
+            int result = 0;
+
+            var enumerator = sheet.GetRowEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                IRow row = (IRow)enumerator.Current;
+
+                if (row != null && row.RowNum > result)
+                {
+                    result = row.RowNum;
+                }
+            }
+
+            return result;
         }
 
         private T GetItemFromRow<T>(IRow row, List<PropertyInfo> mappingTypeProperties)
@@ -543,18 +559,17 @@ namespace Trendyol.Excelsior
             return item;
         }
 
-        private string[] GetItemFromRow(IRow row)
+        private string[] GetItemFromRow(IRow row, int columnCountOfSheet)
         {
+            string[] itemRow = new string[columnCountOfSheet + 1];
             bool isRowEmpty = IsRowEmpty(row);
 
             if (isRowEmpty)
             {
-                return null;
+                return itemRow;
             }
 
             row.Cells.ForEach(c => c.SetCellType(CellType.String));
-
-            string[] itemRow = { };
 
             foreach (ICell cell in row.Cells)
             {
@@ -565,6 +580,30 @@ namespace Trendyol.Excelsior
             }
 
             return itemRow;
+        }
+
+        private int GetMaxColumnNumberOfSheet(ISheet sheet)
+        {
+            int result = 0;
+
+            var enumerator = sheet.GetRowEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                IRow row = (IRow)enumerator.Current;
+
+                if (!IsRowEmpty(row))
+                {
+                    int rowColumCount = row.Cells.Max(c => c.ColumnIndex);
+
+                    if (rowColumCount > result)
+                    {
+                        result = rowColumCount;
+                    }
+                }
+            }
+
+            return result;
         }
 
         private List<ExcelCell> GetCellArrayForItem<T>(T item, List<PropertyInfo> mappingTypeProperties)
