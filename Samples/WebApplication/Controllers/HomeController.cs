@@ -39,7 +39,7 @@ namespace WebApplication.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     IExcelsior excelsior = new Excelsior();
-                    IEnumerable<Person> persons = excelsior.Listify<Person>(file, true);
+                    var asdf = excelsior.Arrayify(file, true);
                 }
             }
 
@@ -67,7 +67,9 @@ namespace WebApplication.Controllers
                 EmploymentStartDate = DateTime.Now.AddDays(-55),
                 Name = "Ömer Cinbat",
                 RowNumber = 1,
-                Salary = 400.22M
+                Decimal = 400.22M,
+                Float = 0.18F,
+                Double = 0.12D
             };
             persons.Add(person);
 

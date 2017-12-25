@@ -63,9 +63,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelCell.cs" />
     <Compile Include="ExcelColumnAttribute.cs" />
     <Compile Include="Excelsior.cs" />
     <Compile Include="ExcelsiorException.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IExcelRow.cs" />
     <Compile Include="IExcelsior.cs" />
     <Compile Include="IRowValidator.cs" />

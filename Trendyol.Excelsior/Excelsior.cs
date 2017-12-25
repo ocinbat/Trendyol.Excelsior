@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NPOI.HSSF.UserModel;
-using NPOI.HSSF.Util;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+
+using Trendyol.Excelsior.Extensions;
 using Trendyol.Excelsior.Validation;
 
 namespace Trendyol.Excelsior
@@ -24,9 +25,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -43,10 +42,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Listify<T>(workbook, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -127,9 +122,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -146,10 +139,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Listify(workbook, rowValidator, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -235,9 +224,7 @@ namespace Trendyol.Excelsior
 
             string fileExtension = Path.GetExtension(filePath);
 
-            FileStream stream = new FileStream(filePath, FileMode.Open);
-
-            try
+            using (var stream = new FileStream(filePath, FileMode.Open))
             {
                 IWorkbook workbook;
 
@@ -254,10 +241,6 @@ namespace Trendyol.Excelsior
                 }
 
                 return Arrayify(workbook, hasHeaderRow);
-            }
-            finally
-            {
-                stream.Dispose();
             }
         }
 
@@ -294,20 +277,14 @@ namespace Trendyol.Excelsior
             }
 
             ICollection<string[]> itemList = new List<string[]>();
+            int maxColumnNumber = GetMaxColumnNumberOfSheet(sheet);
+            int maxRowNumber = GetMaxRowNumberOfSheet(sheet);
 
-            for (int i = firstDataRow; i < sheet.PhysicalNumberOfRows; i++)
+            for (int i = firstDataRow; i < maxRowNumber + 1; i++)
             {
                 IRow row = sheet.GetRow(i);
-
-                if (!IsRowEmpty(row))
-                {
-                    string[] itemRow = GetItemFromRow(row);
-
-                    if (itemRow != null)
-                    {
-                        itemList.Add(itemRow);
-                    }
-                }
+                string[] itemRow = GetItemFromRow(row, maxColumnNumber);
+                itemList.Add(itemRow);
             }
 
             return itemList;
@@ -351,7 +328,7 @@ namespace Trendyol.Excelsior
             {
                 IRow dataRow = sheet.CreateRow(rowIndex++);
 
-                List<string> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
+                List<ExcelCell> rowCells = GetCellArrayForItem(items[i], mappingTypeProperties);
 
                 if (!cellCount.HasValue)
                 {
@@ -360,10 +337,27 @@ namespace Trendyol.Excelsior
 
                 for (int j = 0; j < rowCells.Count; j++)
                 {
-                    dataRow.CreateCell(j).SetCellValue(rowCells[j] == null ? String.Empty : String.Format("{0}", rowCells[j]));
-                }
+                    ICell cell = dataRow.CreateCell(j, rowCells[j].Type);
 
-                dataRow.Cells.ForEach(c => c.SetCellType(CellType.String));
+                    switch (rowCells[j].Type)
+                    {
+                        case CellType.Numeric:
+                            cell.SetCellValue(Convert.ToDouble(rowCells[j].Value));
+
+                            if (!String.IsNullOrEmpty(rowCells[j].Format))
+                            {
+                                ICellStyle style = workbook.CreateCellStyle();
+                                style.DataFormat = HSSFDataFormat.GetBuiltinFormat(rowCells[j].Format);
+                                cell.CellStyle = style;
+                            }
+                            break;
+                        case CellType.String:
+                            cell.SetCellValue(rowCells[j].Value == null ? String.Empty : $"{rowCells[j].Value}");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("CellType", $"Unsupported cell type: {rowCells[j].Type}.");
+                    }
+                }
             }
 
             if (cellCount.HasValue)
@@ -442,26 +436,48 @@ namespace Trendyol.Excelsior
                 return true;
             }
 
-            for (int i = 0; i <= row.PhysicalNumberOfCells; i++)
+            using (var enumerator = row.GetEnumerator())
             {
-                ICell cell = row.GetCell(i);
-
-                if (cell != null && cell.CellType != CellType.Blank)
+                while (enumerator.MoveNext())
                 {
-                    return false;
+                    ICell cell = enumerator.Current;
+
+                    if (cell != null && cell.CellType != CellType.Blank)
+                    {
+                        return false;
+                    }
                 }
             }
 
             return true;
         }
 
+        private int GetMaxRowNumberOfSheet(ISheet sheet)
+        {
+            int result = 0;
+
+            var enumerator = sheet.GetRowEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                IRow row = (IRow)enumerator.Current;
+
+                if (row != null && row.RowNum > result)
+                {
+                    result = row.RowNum;
+                }
+            }
+
+            return result;
+        }
+
         private T GetItemFromRow<T>(IRow row, List<PropertyInfo> mappingTypeProperties)
         {
-            T item = Activator.CreateInstance<T>();
+            var item = Activator.CreateInstance<T>();
 
             foreach (PropertyInfo pi in mappingTypeProperties)
             {
-                ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+                var attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
 
                 if (attr != null)
                 {
@@ -473,7 +489,7 @@ namespace Trendyol.Excelsior
                     {
                         columnValue = columnValue.Trim();
 
-                        if (pi.PropertyType == typeof(int))
+                        if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(int))
                         {
                             int val;
 
@@ -482,7 +498,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, val);
                             }
                         }
-                        else if (pi.PropertyType == typeof(decimal))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(decimal))
                         {
                             decimal val;
 
@@ -491,7 +507,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, Math.Round(val, 2));
                             }
                         }
-                        else if (pi.PropertyType == typeof(float))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(float))
                         {
                             float val;
 
@@ -500,7 +516,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, Math.Round(val, 2));
                             }
                         }
-                        else if (pi.PropertyType == typeof(long))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(long))
                         {
                             long val;
 
@@ -509,7 +525,7 @@ namespace Trendyol.Excelsior
                                 pi.SetValue(item, val);
                             }
                         }
-                        else if (pi.PropertyType == typeof(DateTime))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(DateTime))
                         {
                             DateTime val;
 
@@ -528,7 +544,7 @@ namespace Trendyol.Excelsior
                                 }
                             }
                         }
-                        else if (pi.PropertyType == typeof(string))
+                        else if (pi.PropertyType.GetUnderlyingTypeIfPossible() == typeof(string))
                         {
                             pi.SetValue(item, columnValue);
                         }
@@ -543,50 +559,89 @@ namespace Trendyol.Excelsior
             return item;
         }
 
-        private string[] GetItemFromRow(IRow row)
+        private string[] GetItemFromRow(IRow row, int columnCountOfSheet)
         {
+            string[] itemRow = new string[columnCountOfSheet + 1];
             bool isRowEmpty = IsRowEmpty(row);
 
             if (isRowEmpty)
             {
-                return null;
+                return itemRow;
             }
 
             row.Cells.ForEach(c => c.SetCellType(CellType.String));
 
-            string[] itemRow = row.Cells.Select(c => c.StringCellValue).ToArray();
+            foreach (ICell cell in row.Cells)
+            {
+                if (cell != null)
+                {
+                    itemRow[cell.ColumnIndex] = cell.StringCellValue;
+                }
+            }
 
             return itemRow;
         }
 
-        private List<string> GetCellArrayForItem<T>(T item, List<PropertyInfo> mappingTypeProperties)
+        private int GetMaxColumnNumberOfSheet(ISheet sheet)
         {
-            List<string> cells = new List<string>();
+            int result = 0;
+
+            var enumerator = sheet.GetRowEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                IRow row = (IRow)enumerator.Current;
+
+                if (!IsRowEmpty(row))
+                {
+                    int rowColumCount = row.Cells.Max(c => c.ColumnIndex);
+
+                    if (rowColumCount > result)
+                    {
+                        result = rowColumCount;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private List<ExcelCell> GetCellArrayForItem<T>(T item, List<PropertyInfo> mappingTypeProperties)
+        {
+            List<ExcelCell> cells = new List<ExcelCell>();
 
             foreach (PropertyInfo pi in mappingTypeProperties)
             {
-                string cell = String.Empty;
+                ExcelCell cell = new ExcelCell();
+
+                ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
+
+                if (attr.CellType == CellType.Unknown)
+                {
+                    attr.CellType = CellType.String;
+                }
+
+                cell.Format = attr.Format;
+                cell.Type = attr.CellType;
 
                 object itemValue = pi.GetValue(item);
 
                 if (itemValue != null)
                 {
-                    ExcelColumnAttribute attr = pi.GetCustomAttribute<ExcelColumnAttribute>();
-
                     if (pi.PropertyType == typeof(DateTime))
                     {
                         if (String.IsNullOrEmpty(attr.Format))
                         {
-                            cell = ((DateTime)itemValue).ToString(CultureInfo.InvariantCulture);
+                            cell.Value = ((DateTime)itemValue).ToString(CultureInfo.InvariantCulture);
                         }
                         else
                         {
-                            cell = ((DateTime)itemValue).ToString(attr.Format, CultureInfo.InvariantCulture);
+                            cell.Value = ((DateTime)itemValue).ToString(attr.Format, CultureInfo.InvariantCulture);
                         }
                     }
                     else
                     {
-                        cell = itemValue.ToString();
+                        cell.Value = itemValue;
                     }
                 }
 

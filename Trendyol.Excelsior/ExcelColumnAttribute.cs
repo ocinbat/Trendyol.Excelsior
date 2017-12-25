@@ -1,4 +1,5 @@
 ﻿using System;
+using NPOI.SS.UserModel;
 
 namespace Trendyol.Excelsior
 {
@@ -12,6 +13,8 @@ namespace Trendyol.Excelsior
         public object DefaultValue { get; }
 
         public string Format { get; }
+
+        public CellType CellType { get; set; }
 
         public ExcelColumnAttribute(int order)
             : this(order, String.Empty)
@@ -30,6 +33,7 @@ namespace Trendyol.Excelsior
 
         public ExcelColumnAttribute(int order, string name, object defaultValue, string format)
         {
+            CellType = CellType.Unknown;
             Order = order;
             Name = name;
             DefaultValue = defaultValue;
